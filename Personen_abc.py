@@ -18,7 +18,12 @@ except:
 
 class Person(ABC):
 	"Simple class for all the people, who you need to take track of."
-	Dictonary = {}
+	def __init__(self, name, birthday, residence, email, telephone) -> None:
+		self.name = name
+		self.birthday = birthday
+		self.residence = residence
+		self.email = email
+		self.telephone = telephone
 
 	def Name(self):
 		return self.name
@@ -50,15 +55,9 @@ class Person(ABC):
 
 class Customer(Person):
 	"Someone, who is just a custumer to the company"
-	Dictonary = {}
-
 	def __init__(self, name: str = None, birthday: str = None, residence: str = None, customer_id: int = None, email: str = None, telephone: int = None):
-		self.name = name
-		self.birthday = birthday
-		self.residence = residence
+		super().__init__(name, birthday, residence, email, telephone)
 		self.customer_id = customer_id
-		self.email = email
-		self.telephone = telephone
 		self.last_order = None
 		self.mean_volume: int = 0
 		self.mean_order: int = 0
@@ -72,17 +71,11 @@ class Customer(Person):
 
 class Employee(Person):
 	"Employee of the company."
-	Dictonary = {"L_J_001": None, "Y_C_002": None, "M_S_003": None }
-
 	def __init__(self, name: str, birthday: str = None, residence: str = None, employee_id: int = 0, discount :float = 0, position: str = None, email: str = None,  telephone: int = 0, employed_since: str = None):
-		self.name = name
-		self.birthday = birthday
-		self.residence = residence
+		super().__init__(name, birthday, residence, email, telephone)
 		self.employee_id = employee_id
 		self.discount = discount
 		self.position = position
-		self.email = email
-		self.telephone = telephone
 		self.employed_since = employed_since
 		self.last_order = None
 
