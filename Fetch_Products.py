@@ -3,7 +3,6 @@ from selenium import webdriver
 from html.parser import HTMLParser
 import time, re
 from Format_Data import reduce_tags
-from Produktklassen_abc import Product, Smartphone, Headphone, TV, Computer
 
 # path to chromedriver for selenium and headers to be used.
 path_driver = "Order_Simulator/chromedriver-2"
@@ -32,14 +31,15 @@ def get_page_selenium(url):
 
 class Product_Driver:
     """ Enter product that should be scraped """
-    def __init__(self, category: Product, perf: bool = False) -> None:
+    def __init__(self, category: str, url: str, perf: bool = False) -> None:
         self.category = category
+        self.url = url
         # if you want to see the time, use perf = True.
         if perf: 
             self.perf = perf
             self.time = time.perf_counter()
         # read page via selenium.
-        page = get_page_selenium(category.url)  
+        page = get_page_selenium(self.url)  
         self.product_content = BS(page, features="html.parser")
     
         if self.perf: print(f"read page in {time.perf_counter() - self.time} sec")
@@ -52,12 +52,12 @@ class Product_Driver:
             title_cache = self.product_content.find("span", id="titleSection") 
         elif title_cache == None: 
             # if format of the page is not common, use None.
-            self.category.name = "None"
+            self.name = "None"
             print("couldn't catch title")
             return None
         # add title to Product.
-        self.category.name = title_cache.text.translate({ord("ß"):"ss"}).strip()
-        self.category.hash = hash(self.category.url)
+        self.name = title_cache.text.translate({ord("ß"):"ss"}).strip()
+        self.hash = hash(self.url)
 
     # get product rating from the page. format will be [#rating, [#5star, #4start, etc.]].
     def Get_Rating_Info(self):
@@ -73,7 +73,7 @@ class Product_Driver:
         rating_cache = self.product_content.find("div", {"class": "a-row a-spacing-medium averageStarRatingNumerical"}).text
         total_rating = int(nums.findall(rating_cache)[0].translate({ord(","): None}))
         # set product.rating to the before mentioned format.
-        self.category.rating = [total_rating, rating_distribution]
+        self.rating = [total_rating, rating_distribution]
 
     # get the price from the page
     def Get_Prices(self):
@@ -83,24 +83,24 @@ class Product_Driver:
             price_cache = self.product_content.find("table", {"class": "a-lineitem a-align-top"})
         price_pay = price_cache.find("span", {"class": "a-offscreen"})
         # convert price.
-        self.category.price = convert_price(price_pay.text)
+        self.price = convert_price(price_pay.text)
         # if there is a discount, then it will be added.
         price_sugg = price_cache.find("span", {"class": "a-size-small a-color-secondary aok-align-center basisPrice"})
         if price_sugg == None: 
-            self.category.sugg_price = 0
+            self.sugg_price = 0
         else: 
-            self.category.sugg_price = convert_price(price_sugg.text)
+            self.sugg_price = convert_price(price_sugg.text)
 
     def Get_Tags(self):
         # split title.
-        comp_title = self.category.name.split(" ")
+        comp_title = self.name.split(" ")
         # get words in title.
         comp_title = [letters.findall(x) for x in comp_title]
         comp_title = [x[0] for x in comp_title if len(x) > 0]
         comp_title = ",".join(comp_title)
         # reduce tags.
         comp_title = str(reduce_tags(comp_title)).strip("[]").translate({ord("'"): None}).translate({ord(" "): None})
-        self.category.tags = comp_title
+        self.tags = comp_title
 
     def Smartphone_Size(self):
         # find table on page.
@@ -110,7 +110,9 @@ class Product_Driver:
             display_size = display_size[1].findAll("tr")[0]
             display_size = display_size.findAll("td")[1].text
             display_size = nums.findall(display_size)[0].replace(",", ".")
-            self.category.size = float(display_size)
+            self.size = float(display_size)
+
+    "To be added."
 
     def Headphone_NC(self):
         pass
@@ -122,39 +124,23 @@ class Product_Driver:
         pass
 
     def Get_Data(self):
+        # get common attributes
         self.Get_Title()
         self.Get_Prices()
         self.Get_Rating_Info()
         self.Get_Tags()
+
+        # get product specific attribute.
         if self.perf: print(f"got attributes in {time.perf_counter() - self.time}")
-        if self.category.category == "Smartphone":
-            self.Smartphone_Size()
-        elif self.category.category  == "Headphone":
-            self.Headphone_NC()
-        elif self.category.category  == "TV":
-            self.TV_Size()
-        elif self.category.category  == "Computer":
-            self.Computer_Ram()
+        if self.category== "Smartphone": self.Smartphone_Size()
+        elif self.category  == "Headphone": self.Headphone_NC()
+        elif self.category  == "TV": self.TV_Size()
+        elif self.category == "Computer": self.Computer_Ram()
 
         if self.perf: print(f"finished in {time.perf_counter() - self.time}")
 
 if __name__ == "__main__":
     start = time.perf_counter()
-    print("start")
-    test_smartphone_1 = Smartphone("https://www.amazon.de/MPXV3ZD-A/dp/B0BDJ61GFY/ref=sr_1_1_sspa?keywords=iphone+14+pro&qid=1666708676&qu=eyJxc2MiOiIzLjg5IiwicXNhIjoiMy41OSIsInFzcCI6IjMuMjQifQ%3D%3D&sprefix=ip%2Caps%2C119&sr=8-1-spons&psc=1")
-    test_smartphone_2 = Smartphone("https://www.amazon.de/-/en/dp/B0BDJMH6JP?ref=ods_ucc_kindle_B0BDJMH6JP_rc_nd_ucc")
-    test_smartphone_3 = Smartphone("https://www.amazon.de/GALAXY-S732GB-SI-A-36-Samsung-silver/dp/B0716T91X6/ref=sr_1_1_sspa?crid=1YRNH17UGYDOM&keywords=samsung+sma&qid=1666714844&qu=eyJxc2MiOiIxLjk4IiwicXNhIjoiMC4wMCIsInFzcCI6IjAuMDAifQ%3D%3D&sprefix=samsung+sma%2Caps%2C115&sr=8-1-spons&psc=1")
-    test_computer = Computer("https://www.amazon.de/-/en/Apple-MacBook-Air-chip-inch/dp/B08N5R7XXZ/ref=sr_1_4?crid=39XA1V7NDAML2&keywords=mac&qid=1666708761&qu=eyJxc2MiOiI1LjM3IiwicXNhIjoiNS42NyIsInFzcCI6IjUuMzEifQ%3D%3D&sprefix=mac%2Caps%2C109&sr=8-4")
-    """
-    # test computer.
-    test = Product_Driver(test_computer, True)
-    test.Get_Data()
-    print(vars(test.category), "\n")
-
-    # test smartphones. 
-    for item in [test_smartphone_1, test_smartphone_2, test_smartphone_3]:
-        test = Product_Driver(item, perf = True)
-        test.Get_Data()
-        print(vars(test.category), "\n")
-    """
-    print(f"{time.perf_counter() - start} sec.")
+    url_test = "https://www.amazon.de/MPVA3ZD-A/dp/B0BDJC83QY/ref=sr_1_1_sspa?crid=3MXI5609W6NW2&keywords=iphone&qid=1667246474&qu=eyJxc2MiOiI2LjgzIiwicXNhIjoiNi45OCIsInFzcCI6IjYuNDgifQ%3D%3D&sprefix=iphon%2Caps%2C142&sr=8-1-spons&psc=1"
+    test = Product_Driver("Smartphone", url_test, True)
+    print(f"Done scraping products in {time.perf_counter() - start} sec.")
