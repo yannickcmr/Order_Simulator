@@ -4,6 +4,8 @@ from html.parser import HTMLParser
 import time, re
 from Format_Data import reduce_tags
 
+""" Options """
+
 # path to chromedriver for selenium and headers to be used.
 path_driver = "Order_Simulator/chromedriver-2"
 Headers_data = ({'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36', 'Accept-Language': 'en-US, en;q=0.5'})
@@ -31,6 +33,7 @@ def get_page_selenium(url):
     driver.quit()
     return page_html
 
+""" Classes """
 
 class Product_Driver:
     """ Enter product that should be scraped """
@@ -111,6 +114,7 @@ class Product_Driver:
 
     def Smartphone_Size(self):
         # find table on page.
+        self.size = 0
         display_size = self.product_content.findAll("table", {"class": "a-bordered"})
         if len(display_size) > 2:
             # find td in table.
@@ -122,13 +126,13 @@ class Product_Driver:
     "To be added."
 
     def Headphone_NC(self):
-        pass
+        self.noise_canceling = None
 
     def TV_Size(self):
-        pass
+        self.size = None
 
     def Computer_Ram(self):
-        pass
+        self.ram = None
 
     def Get_Special_Attr(self):
         if self.category== "Smartphone": self.Smartphone_Size()
@@ -147,11 +151,14 @@ class Product_Driver:
 
 if __name__ == "__main__":
     start = time.perf_counter()
+
     url_test = "https://www.amazon.de/MPVA3ZD-A/dp/B0BDJC83QY/ref=sr_1_1_sspa?crid=3MXI5609W6NW2&keywords=iphone&qid=1667246474&qu=eyJxc2MiOiI2LjgzIiwicXNhIjoiNi45OCIsInFzcCI6IjYuNDgifQ%3D%3D&sprefix=iphon%2Caps%2C142&sr=8-1-spons&psc=1"
     test = Product_Driver("Smartphone", url_test, True)
     test.Get_Data()
+    
     print(f"Product:")
     for var in vars(test):
         if var != "product_content":
             print(f"{var}: {vars(test)[var]}")
+    
     print(f"Done scraping products in {time.perf_counter() - start} sec.")
