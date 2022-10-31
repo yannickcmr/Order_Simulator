@@ -24,6 +24,7 @@ class Person(ABC):
 		self.residence = residence
 		self.email = email
 		self.telephone = telephone
+		self.last_order = None
 
 	def Name(self):
 		return self.name
@@ -55,10 +56,9 @@ class Person(ABC):
 
 class Customer(Person):
 	"Someone, who is just a custumer to the company"
-	def __init__(self, name: str = None, birthday: str = None, residence: str = None, customer_id: int = None, email: str = None, telephone: int = None):
+	def __init__(self, name: str = None, birthday: str = None, residence: str = None, email: str = None, telephone: int = None):
 		super().__init__(name, birthday, residence, email, telephone)
-		self.customer_id = customer_id
-		self.last_order = None
+		self.customer_id = hash(name)
 		self.mean_volume: int = 0
 		self.mean_order: int = 0
 		self.mean_items: int = 0
@@ -71,13 +71,12 @@ class Customer(Person):
 
 class Employee(Person):
 	"Employee of the company."
-	def __init__(self, name: str, birthday: str = None, residence: str = None, employee_id: int = 0, discount :float = 0, position: str = None, email: str = None,  telephone: int = 0, employed_since: str = None):
+	def __init__(self, name: str, birthday: str = None, residence: str = None, discount :float = 0, position: str = None, email: str = None,  telephone: int = 0, employed_since: str = None):
 		super().__init__(name, birthday, residence, email, telephone)
-		self.employee_id = employee_id
+		self.employee_id = hash(name)
 		self.discount = discount
 		self.position = position
 		self.employed_since = employed_since
-		self.last_order = None
 
 	def Person_ID(self) -> int:
 		return self.employee_id
@@ -118,7 +117,7 @@ def Create_Customer(first_: list, last_: list, cities: list, mails: list) -> Cus
 	cache = name.split(" ")
 	# using first letter of the first name and the last name all in lower case.
 	mail = f"{cache[0][0].lower()}.{cache[1].lower()}@{rd.choice(mails)}"
-	return Customer(name, birthday, city, hash(name), mail, phone)
+	return Customer(name, birthday, city, mail, phone)
 
 def Randomize_Names(file: str, set_size: int) -> list:
 	# get list of variables.
