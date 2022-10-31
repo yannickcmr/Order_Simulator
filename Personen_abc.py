@@ -2,14 +2,9 @@ import io, os, sys, codecs, time
 import random as rd
 from abc import ABC, abstractmethod
 
-"""
-Code that creates a class for people. Requiered attributes are as followed: 
-Name: str, Customer_ID: int, Sale: float in [0,1], Email: str,
-Telephone: int with S.N. in front, i.e. (+)49, 
-"""
+""" Class of Persons, especially for Customers and Employees """
 
 Path_Saving = "Test/"
-
 try:
     sys.stdin = codecs.getreader("utf-8")(sys.stdin.detach())
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
@@ -99,6 +94,7 @@ def Read_CSV(file: str) -> list:
 
 	with io.open(file_path, "r", encoding="utf-8") as file_names:
 		lines = file_names.readlines()
+		# creating lists of the csv lines (first and last names, cities and mail provider).
 		first_names = [*lines[0].translate({ord("\n"): None}).split(";")]
 		last_names = [*lines[1].translate({ord("\n"): None}).split(";")]
 		cities = [*lines[2].translate({ord("\n"): None}).split(";")]
@@ -126,13 +122,18 @@ def Randomize_Names(file: str, set_size: int) -> list:
 
 if __name__ == "__main__":
 	start = time.perf_counter()
+	# enter your file name and number of test customers.
 	test_names = "Person.csv"
 	set_size = 150
 
+	# testing Read_CSV
 	first_, last_, cities, mail = Read_CSV(test_names)
 	print(f"Testing Read_CSV:\nfirst names: {first_}\nlast names: {last_}\ncities: {cities}\nmail: {mail}\n")
+	
+	# Testing Randomize_Names and Create_Customer.
 	random_names = Randomize_Names(test_names, set_size)
 	print(f"Testing Randomize_Names:\n")
 	for customer in random_names:
 		print(f"{customer.birthday}\t\t{customer.telephone}\t\t{customer.name}\t\t{customer.email}\t\t{customer.customer_id} ")
+	
 	print(f"Done generating {set_size} in {time.perf_counter() - start} sec.")
