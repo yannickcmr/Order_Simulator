@@ -8,7 +8,7 @@ except:
     pass  
 
 
-Path_Saving = "/Users/yannick_cmr/Dropbox/PC_Back-Up/Projekte/Test/"
+Path_Saving = "/Test/"
 
 # Lists to calculate the hash.
 letters_list = ["e", "i","a", "u" , "o", "n", "s", "r", "t", "d", "h", "l", "b", "c", "f", "g", "j", "k", "m", "p", "q", "v", "w", "x", "y", "z"]
@@ -72,7 +72,7 @@ def check_tag(tag: str):
             return line[span: span + 7]
     return None
 
-def create_hash(pocket: int) -> str:
+def create_code(pocket: int) -> str:
     # Creates a random code for a tag.
     space_list = [*nums, *letters_list]
     code = [rnd.choice(space_list) for i in range(0, 5)]
