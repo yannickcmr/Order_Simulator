@@ -1,11 +1,21 @@
 from abc import ABC, abstractmethod
 import numpy as np
+import io, os, codecs, sys, time
+from Fetch_Products import Product_Driver
 
 """ Code to create different kinds of products, i.e. Smartphones, Tvs, etc. """
 
+Path_Saving = "Test/"
+try:
+    sys.stdin = codecs.getreader("utf-8")(sys.stdin.detach())
+    sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
+except:
+    pass  
+
+""" Classes """
+
 class Product(ABC):
 	"Class of the products"
-	Dictonary = {}
 	def __init__(self, url: str) -> None:
 		self.url = url
 		self.category = None
@@ -32,7 +42,7 @@ class Product(ABC):
 		return self.category
 
 	def Hash(self) -> int:
-		return self.hash_code
+		return self.hash
 	
 	def Tags(self) -> list:
 		return self.tags
@@ -77,8 +87,99 @@ class Computer(Product):
 	def Important_Values(self):
 		return [self.name, self.price, self.ram]
 
+""" File Options """
+
+def Read_Links_CSV(file: str) -> list:
+	file_path = os.path.join(Path_Saving, file)
+
+	with io.open(file_path, "r", encoding="utf-8") as file_products:
+		lines = file_products.readlines()
+		phones_links = [*lines[0].translate({ord("\n"): None}).split(";")]
+		tv_links = [*lines[1].translate({ord("\n"): None}).split(";")]
+		computer_links = [*lines[2].translate({ord("\n"): None}).split(";")]
+		headphones_link = [*lines[3].translate({ord("\n"): None}).split(";")]
+	
+	return phones_links, tv_links, computer_links, headphones_link
+
+
+def Generate_Product(attr: dict) -> Product:
+	if attr["category"] == "Smartphone":
+		product = Smartphone(attr["url"])
+	elif attr["category"] == "TV":
+		product = TV(attr["url"])
+	elif attr["category"] == "Computer":
+		product = Computer(attr["url"])
+	elif attr["category"] == "Headphone":
+		product = Headphone(attr["url"])
+	
+	for var in vars(product):
+		setattr(product, var, attr[var])
+	
+	return product
+
+# convert links to Product.
+def Convert_Product(url: str, category: str) -> Product:
+	print(f"--> url: {url}\n")
+	product = Product_Driver(category, url)
+	product.Get_Data()
+	attributes = vars(product) 
+	attributes.pop("product_content")
+	print(attributes)
+	return Generate_Product(attributes)
+		
+def Create_Products(file_: str) -> list:
+	phones_, tv_, computer_, headphones_ = Read_Links_CSV(file_)
+
+	phones = [Convert_Product(link, "Smartphone") for link in phones_]
+	tvs = [Convert_Product(link, "TV") for link in tv_]
+	computers = [Convert_Product(link, "Computer") for link in computer_]
+	headphones = [Convert_Product(link, "Headphone") for link in headphones_]
+
+	return phones, tvs, computers, headphones
+
+def Write_Products_to_CSV(file_name: str, products: list):
+	path = os.path.join(Path_Saving, file_name)
+
+	with io.open(path, "w+", encoding="utf-8") as products_file:
+		for item in products:
+			attributes = vars(item)
+			for attr in attributes:
+				products_file.write(f"{attr}|{getattr(item, attr)};")
+			products_file.write("\n")
+
+def Read_Product_CSV(file: str) -> list:
+	path = os.path.join(Path_Saving, file)
+	prod_list = []
+
+	with io.open(path, "r", encoding="utf-8") as products:
+		lines = products.readlines()
+		for line in lines:
+			# removing ;\n from the end of the string
+			cache = line[0: len(line) - 2]
+			# converting str to dict
+			cache = [tuple(attr.split("|")) for attr in cache.split(";")]
+			prod_list.append(Generate_Product(dict(cache)))
+	
+	return prod_list
+
+
 if __name__ == "__main__":
-	test_smartphone = Smartphone("https://www.amazon.de/MPXV3ZD-A/dp/B0BDJ61GFY/ref=sr_1_1_sspa?keywords=iphone+14+pro&qid=1666708676&qu=eyJxc2MiOiIzLjg5IiwicXNhIjoiMy41OSIsInFzcCI6IjMuMjQifQ%3D%3D&sprefix=ip%2Caps%2C119&sr=8-1-spons&psc=1")
-	test_headphone = Headphone("https://www.amazon.de/NEW-QuietComfort-Cancelling-Ear-Personalised-White/dp/B0B7838HH6/ref=sr_1_1_sspa?crid=3T3UMCRZKE2VF&keywords=bose&qid=1666708721&qu=eyJxc2MiOiI2LjUwIiwicXNhIjoiNS43NSIsInFzcCI6IjUuMzUifQ%3D%3D&sprefix=bos%2Caps%2C132&sr=8-1-spons&psc=1")
-	test_tv = TV("https://www.amazon.de/65UQ7006LB-Inches-Active-Smart-Model/dp/B0B4DGD1NM/ref=sr_1_1_sspa?crid=27TQBTVIYE7DQ&keywords=tv&qid=1666708740&qu=eyJxc2MiOiI4LjU1IiwicXNhIjoiOC40NCIsInFzcCI6IjcuNzIifQ%3D%3D&sprefix=tv%2Caps%2C100&sr=8-1-spons&psc=1")
-	test_computer = Computer("https://www.amazon.de/-/en/Apple-MacBook-Air-chip-inch/dp/B08N5R7XXZ/ref=sr_1_4?crid=39XA1V7NDAML2&keywords=mac&qid=1666708761&qu=eyJxc2MiOiI1LjM3IiwicXNhIjoiNS42NyIsInFzcCI6IjUuMzEifQ%3D%3D&sprefix=mac%2Caps%2C109&sr=8-4")
+	start = time.perf_counter()
+	test_file_links = "Links_.csv"
+	test_file_products = "Products.csv"
+
+	# testing Read_Links_CSV
+	#phone, tv, computer, headphones = Read_Links_CSV(test_file_links)
+	#print(f"Test Links:\nPhones: {phone}\nTV: {tv}\nComputer: {computer}\nHeadphones: {headphones}\n")
+	# testing Create_Products
+	#phone, tv, computer, headphone = Create_Products(test_file_links)
+	#print(f"test: {type(phone[0])}, {type(tv[0])}, {type(computer[0])}, {type(headphone[0])}")
+	#test_write_csv = [*phone, *tv, *computer, *headphone]
+	# test Write_Products_to_CSV
+	#Write_Products_to_CSV("Products.csv", test_write_csv)
+	test_read_products = Read_Product_CSV(test_file_products)
+	print(len(test_read_products))
+	for item in test_read_products:
+		print(vars(item), "\n")
+
+	print(f"Done in {time.perf_counter() - start} sec.")
