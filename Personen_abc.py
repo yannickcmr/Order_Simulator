@@ -2,9 +2,10 @@ import io, os, sys, codecs, time
 import random as rd
 from abc import ABC, abstractmethod
 
+Path_Saving = "Test/"
+
 """ Class of Persons, especially for Customers and Employees """
 
-Path_Saving = "Test/"
 try:
     sys.stdin = codecs.getreader("utf-8")(sys.stdin.detach())
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
