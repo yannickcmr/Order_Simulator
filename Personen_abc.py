@@ -21,19 +21,19 @@ class Person(ABC):
 		self.telephone = telephone
 		self.last_order = None
 
-	def Name(self):
+	def Name(self) -> str:
 		return self.name
 
-	def Birthday(self):
+	def Birthday(self) -> str:
 		return self.birthday
 
-	def Residence(self):
+	def Residence(self) -> str:
 		return self.residence
 
-	def Email(self):
+	def Email(self) -> str:
 		return self.email
 
-	def Telephone(self):
+	def Telephone(self) -> str:
 		return self.telephone 
 
 	def Last_Order(self):
