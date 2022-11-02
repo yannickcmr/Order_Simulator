@@ -78,6 +78,8 @@ def Create_App():
         daba_entries = db.session.query(Person_DB).all()
         return render_template("db_base.html", person_table = daba_entries)
 
+    """ Add person to db """
+
     @app.route("/base/add", methods=["POST", "GET"])
     def add_person():
         app.logger.info("adding person")
@@ -90,6 +92,8 @@ def Create_App():
             return render_template("add_person.html", form = add_link_form, heading = "Added Person to DB.")
 
         return render_template("add_person.html", form = add_link_form, heading = "Enter your Name.")
+
+    """ Find person in db """
 
     def Return_Person_str(person: Person_DB):
         return f"{person.id}:{person.name}:{person.email}:{person.phone}"
