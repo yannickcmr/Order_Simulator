@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Database for all products saved</title>
+    </head>
+    <body>
+        <p>{{ heading }}</p>
+        <h2>Database Add Person</h2>
+        {% block content %}
+            <form method="POST" class="caption" style="width: 80%;">
+                {{ form.hidden_tag() }}
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-control")}}
+                {{ form.birthday.label(class="form-label") }}
+                {{ form.birthday(class="form-control")}}
+                {{ form.city.label(class="form-label") }}
+                {{ form.city(class="form-control")}}
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control")}}
+                {{ form.phone.label(class="form-label") }}
+                {{ form.phone(class="form-control")}}
+                {{ form.submit(class="form-control")}}
+            </form>
+        {% endblock %}
+    </body>
+</html>
