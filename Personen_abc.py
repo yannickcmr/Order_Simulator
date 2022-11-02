@@ -121,6 +121,8 @@ def Randomize_Names(file: str, set_size: int) -> list:
 	first_names, last_names, cities, mails = Read_CSV(file)
 	return [Create_Customer(first_names, last_names, cities, mails) for i in range(0, set_size)]
 
+
+
 if __name__ == "__main__":
 	start = time.perf_counter()
 	# enter your file name and number of test customers.
