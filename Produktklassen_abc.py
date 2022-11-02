@@ -1,9 +1,6 @@
 from abc import ABC, abstractmethod
-import numpy as np
 import io, os, codecs, sys, time
 from Fetch_Products import Product_Driver
-
-""" Code to create different kinds of products, i.e. Smartphones, Tvs, etc. """
 
 Path_Saving = "Test/"
 try:
