@@ -11,10 +11,10 @@ try:
 except:
     pass  
 
-
 """ Class """
 
 class Order():
+    "Create and edit an order"
     def __init__(self, person: Person, order_number: int = None, print_bag: bool = False):
         self.bag = []
         self.total = 0
@@ -23,7 +23,7 @@ class Order():
         self.print = print_bag
 
     def Show_Customer(self):
-        if self.print: print(f"Current bag belongs to {self.person.Name()}\n")
+        if self.print: print(f"Current bag belongs to {self.person.name}\n")
         return self.person
 
     def Show_Bag(self, print_: bool = False):
@@ -43,12 +43,11 @@ class Order():
         self.total += total_price
 
         self.bag.append([total_price, product.price, quantity, product.hash])
-
-        if self.print: print(f"{quantity} of {product.Name()} for {total_price} was added to {self.person.Name()}`s bag.")
+        if self.print: print(f"{quantity} of {product.name} for {total_price} was added to {self.person.name}`s bag.")
 
     def Remove_Product(self, product: Product):
         for item in self.bag:
-            if item[3] == product.Hash():
+            if item[3] == product.hash:
                 remove_item = item
                 break
         
@@ -56,7 +55,7 @@ class Order():
         self.bag.remove(remove_item)
 
         if self.print: 
-            print(f"{product.Name()} was removed from {self.person.Name()}`s bag.")
+            print(f"{product.name} was removed from {self.person.name}`s bag.")
 
     def Show_Total(self):
         if self.print: print(f"The current bill is {np.around(self.total, decimals = 2)}")
@@ -64,7 +63,7 @@ class Order():
 
     def Close_Order(self, file_name: str = None):
         path = os.path.join(Path_Saving, file_name)
-        if self.print: print(f"{self.person.Name()}`s Order is now being processed and saved.\n Order:\n{self.bag}")
+        if self.print: print(f"{self.person.name}`s Order is now being processed and saved.\n Order:\n{self.bag}")
         
         if self.person != None: 
             self.person.last_order = self.order_id
@@ -90,7 +89,7 @@ if __name__ == "__main__":
     test_order = Order(test_name[0], rd.randint(100, 1000))
     test_products = rd.sample(test_products, rd.randint(1, len(test_products) - 1))
     for item in test_products:
-        print("->", item.Name(), item.Price(), "\n")
+        print("->", item.name, item.price, "\n")
 
     print("----------------------------------\n")
     test_order.Show_Order_ID()

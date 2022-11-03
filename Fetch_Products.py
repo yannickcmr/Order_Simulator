@@ -19,6 +19,8 @@ letters = re.compile(r"[A-Za-z]+")
 def convert_price(price: str) -> float:
     return float(euros.findall(price)[0].replace(",", ".").replace("€", ""))
 
+""" Webdriver Selenium """
+
 # get page via selenium.
 def get_page_selenium(url):
     driver = webdriver.Chrome(path_driver)
@@ -140,6 +142,7 @@ class Product_Driver:
         elif self.category  == "TV": self.TV_Size()
         elif self.category == "Computer": self.Computer_Ram()
 
+    # Run this to get all the values.
     def Get_Data(self):
         self.Get_Title()
         self.Get_Prices()
@@ -148,6 +151,8 @@ class Product_Driver:
         self.Get_Special_Attr()
 
         if self.time != None: print(f"-> got attributes in {time.perf_counter() - self.time}")
+
+
 
 if __name__ == "__main__":
     start = time.perf_counter()

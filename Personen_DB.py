@@ -31,13 +31,6 @@ def Find_Person_ID(id):
 def Find_Person_Name(name):
     return Person_DB.query.filter_by(name=name).first()
 
-def Personify_from_Form(form):
-    name = form.get("name")
-    app.logger.info(f"Personifying: {name}")
-    customer_id = db.session.query(Person_DB).count() +1
-    return Person_DB(id = customer_id, name = form.get("name"), birthday=form.get("birthday"), city=form.get("city"), email=form.get("email"), phone=form.get("phone"))
-
-
 """ App """
 
 def Create_App():
@@ -45,17 +38,18 @@ def Create_App():
     app = Flask(__name__)
     CORS(app, send_wildcard=True)
     app.secret_key = "test1234"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///data.sqlite3"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///person.sqlite3"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     db.init_app(app)
 
+    # Initialize the database.
     @app.before_first_request
     def create_tables():
-        # initialize db
         db.create_all()
 
     """ Forms """
 
+    # Adding a Customer manually.
     class AddPersonForm(FlaskForm):
             name = StringField("Name: ", validators=[InputRequired(), Length(min=1, max=100)])
             birthday = StringField("Birthday: ", validators=[InputRequired(), Length(min=1, max=100)])
@@ -64,6 +58,7 @@ def Create_App():
             phone = StringField("Phone: ", validators=[InputRequired(), Length(min=1, max=100)])
             submit = SubmitField("Add")
 
+    # Find a Customer, either via ID or their name.
     class FindPersonForm(FlaskForm):
         option = SelectField('Reference: ', choices=[('id','ID'),('name','Name')])
         query = StringField("Query:", validators=[InputRequired(), Length(min=1, max=100)])
@@ -71,26 +66,37 @@ def Create_App():
 
     """ Webpages """
 
-    @app.route("/base", methods=["POST", "GET"])
+    @app.route("/base_person", methods=["POST", "GET"])
+    # Database page. On the page there will be a table of current customers.
     def base():
-        # base page and db.
         app.logger.info("Base")
         daba_entries = db.session.query(Person_DB).all()
-        return render_template("db_base.html", person_table = daba_entries)
+        return render_template("db_person_base.html", person_table = daba_entries)
 
     """ Add person to db """
 
-    @app.route("/base/add", methods=["POST", "GET"])
+    # Convert Form to usable Person_DB object. 
+    def Personify_from_Form(form):
+        name = form.get("name")
+        app.logger.info(f"Personifying: {name}")
+        # Simple way of keeping track of the customer ids. 
+        customer_id = db.session.query(Person_DB).count() +1
+        return Person_DB(id = customer_id, name = form.get("name"), birthday=form.get("birthday"), city=form.get("city"), email=form.get("email"), phone=form.get("phone"))
+
+
+    @app.route("/base_person/add", methods=["POST", "GET"])
+    # Page to add a Person manually.
     def add_person():
         app.logger.info("adding person")
         add_link_form = AddPersonForm()
+
         if request.method == "POST":
             person_add = Personify_from_Form(request.form)
             db.session.add(person_add)
             db.session.commit()
             app.logger.info("Adding completed.")
             return render_template("add_person.html", form = add_link_form, heading = "Added Person to DB.")
-
+        # Base case, when opening the page.
         return render_template("add_person.html", form = add_link_form, heading = "Enter your Name.")
 
     """ Find person in db """
@@ -98,26 +104,31 @@ def Create_App():
     def Return_Person_str(person: Person_DB):
         return f"{person.id}:{person.name}:{person.email}:{person.phone}"
 
-    @app.route("/base/find", methods = ["POST", "GET"])
+    @app.route("/base_person/find", methods = ["POST", "GET"])
     def find_person():
         app.logger.info("finding person")
         find_form = FindPersonForm()
+
         if request.method == "POST":
             option_find = request.form.get("option")
-            if option_find == "id":
-                person = Find_Person_ID(request.form.get("query"))
-            else:
-                person = Find_Person_Name(request.form.get("query"))
             
+            if option_find == "id": 
+                person = Find_Person_ID(request.form.get("query"))
+            else: 
+                person = Find_Person_Name(request.form.get("query"))    
             return render_template("find_person.html", form = find_form, heading = Return_Person_str(person))
+        # Base case, when opening the page.
         return render_template("find_person.html", form = find_form, heading = "Find Person")
 
     return app
 
 
 if __name__ == "__main__":
+    # Create the app and start it.
     app = Create_App()
     app.run(debug=True)
-    print("-----> http://127.0.0.1:5000/base ")
-    print("-----> http://127.0.0.1:5000/base/add ")
+    
+    app.logger.info("-----> http://127.0.0.1:5000/base_person ")
+    app.logger.info("-----> http://127.0.0.1:5000/base_person/add ")
+    app.logger.info("-----> http://127.0.0.1:5000/base_person/find ")
 

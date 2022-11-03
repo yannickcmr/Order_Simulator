@@ -3,14 +3,13 @@ import random as rd
 from abc import ABC, abstractmethod
 
 Path_Saving = "Test/"
-
-""" Class of Persons, especially for Customers and Employees """
-
 try:
     sys.stdin = codecs.getreader("utf-8")(sys.stdin.detach())
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
 except:
     pass  
+
+""" Classes """
 
 class Person(ABC):
 	"Simple class for all the people, who you need to take track of."
@@ -21,24 +20,6 @@ class Person(ABC):
 		self.email = email
 		self.telephone = telephone
 		self.last_order = None
-
-	def Name(self) -> str:
-		return self.name
-
-	def Birthday(self) -> str:
-		return self.birthday
-
-	def Residence(self) -> str:
-		return self.residence
-
-	def Email(self) -> str:
-		return self.email
-
-	def Telephone(self) -> str:
-		return self.telephone 
-
-	def Last_Order(self):
-		return self.last_order
 
 	# Generall infos about that person.
 	@abstractmethod
@@ -89,6 +70,7 @@ class Employee(Person):
 	def Employed_Since(self) -> str:
 		return self.employed_since
 
+""" Import File Options """
 
 def Read_CSV(file: str) -> list:
 	file_path = os.path.join(Path_Saving, file)
@@ -102,6 +84,8 @@ def Read_CSV(file: str) -> list:
 		mail = [*lines[3].translate({ord("\n"): None}).split(";")]
 	
 	return first_names, last_names, cities, mail
+
+""" Create random Customers """
 
 def Create_Customer(first_: list, last_: list, cities: list, mails: list) -> Customer:
 	name = f"{rd.choice(first_)} {rd.choice(last_)}"
@@ -120,7 +104,6 @@ def Randomize_Names(file: str, set_size: int) -> list:
 	# get list of variables.
 	first_names, last_names, cities, mails = Read_CSV(file)
 	return [Create_Customer(first_names, last_names, cities, mails) for i in range(0, set_size)]
-
 
 
 if __name__ == "__main__":

@@ -23,27 +23,9 @@ class Product(ABC):
 		self.hash = None
 		self.tags = None
 
-	def Url(self) -> str:
-		return self.url
-
-	def Name(self) -> str:
-		return self.name
-
-	def Price(self) -> float:
-		return self.price
-
-	def Rating(self) -> list:
-		return self.rating
-
-	def Category(self) -> str:
-		return self.category
-
-	def Hash(self) -> int:
-		return self.hash
-	
-	def Tags(self) -> list:
-		return self.tags
-
+	@abstractmethod
+	def Important_Values(self):
+		pass
 
 class Smartphone(Product):
 	def __init__(self, url: str):
@@ -84,13 +66,15 @@ class Computer(Product):
 	def Important_Values(self):
 		return [self.name, self.price, self.ram]
 
-""" File Options """
+""" Scrape and Import File Options """
 
+# Import the Links to be scraped. 
 def Read_Links_CSV(file: str) -> list:
 	file_path = os.path.join(Path_Saving, file)
 
 	with io.open(file_path, "r", encoding="utf-8") as file_products:
 		lines = file_products.readlines()
+		# lines in the document consist of consequtive links divided by ";".
 		phones_links = [*lines[0].translate({ord("\n"): None}).split(";")]
 		tv_links = [*lines[1].translate({ord("\n"): None}).split(";")]
 		computer_links = [*lines[2].translate({ord("\n"): None}).split(";")]
@@ -98,7 +82,7 @@ def Read_Links_CSV(file: str) -> list:
 	
 	return phones_links, tv_links, computer_links, headphones_link
 
-
+# returns the Category of the imported product.
 def Generate_Product(attr: dict) -> Product:
 	if attr["category"] == "Smartphone":
 		product = Smartphone(attr["url"])
@@ -114,16 +98,18 @@ def Generate_Product(attr: dict) -> Product:
 	
 	return product
 
-# convert links to Product.
+# convert links to Product via scraper (Product_Driver).
 def Convert_Product(url: str, category: str) -> Product:
-	print(f"--> url: {url}\n")
+	#print(f"--> url: {url}\n")
 	product = Product_Driver(category, url)
 	product.Get_Data()
+
 	attributes = vars(product) 
 	attributes.pop("product_content")
-	print(attributes)
+
 	return Generate_Product(attributes)
-		
+
+# Create lists of products via a file containing their links.
 def Create_Products(file_: str) -> list:
 	phones_, tv_, computer_, headphones_ = Read_Links_CSV(file_)
 
@@ -134,16 +120,21 @@ def Create_Products(file_: str) -> list:
 
 	return phones, tvs, computers, headphones
 
+# Save the products and attributes for later use.
 def Write_Products_to_CSV(file_name: str, products: list):
 	path = os.path.join(Path_Saving, file_name)
 
 	with io.open(path, "w+", encoding="utf-8") as products_file:
 		for item in products:
 			attributes = vars(item)
+
 			for attr in attributes:
 				products_file.write(f"{attr}|{getattr(item, attr)};")
 			products_file.write("\n")
 
+""" Read already imported Products """
+
+# Import the products that have been saved in a file.
 def Read_Product_CSV(file: str) -> list:
 	path = os.path.join(Path_Saving, file)
 	prod_list = []
