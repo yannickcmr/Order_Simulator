@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Database for all orders</title>
+    </head>
+    <body>
+        <header>
+            <div style="border-style: bold;">
+                <nav>
+                <a id="db-base-order" href="{{ url_for('base') }}" style="margin-right: 1rem;">Database</a>
+                <a id="add-order" href="{{ url_for('add_order') }}" style="margin-right: 1rem;">Add Manually</a>
+                <a id="add-order-file" href="{{ url_for('add_order_csv') }}" style="margin-right: 1rem;">Add File</a>
+                </nav>
+            </div>
+            <h2>Current entries in the database:</h2>
+        </header>
+                <table>
+                    <tr>
+                        <th>id</th>
+                        <th>customer</th>
+                        <th>total</th>
+                        <th>items</th>
+                        <th>bag: ["count,product_id"]</th>
+                    </tr>
+                    {% block content %}
+                        {% for order in order_table %}
+                        <tr>
+                            <td>{{ order.id }}</td>
+                            <td>{{ order.customer }}</td>
+                            <td>{{ order.total }}</td>
+                            <td>{{ order.items }}</td>
+                            <td>{{ order.bag }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% endblock %}
+                </table>
+        </body>
+</html>
