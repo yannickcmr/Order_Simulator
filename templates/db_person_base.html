@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Database for all persons</title>
+    </head>
+    <body>
+        <header>
+            <div style="border-style: bold;">
+                <nav>
+                    <a id="db-base-order" href="{{ url_for('base') }}" style="margin-right: 1rem;">Database</a>
+                    <a id="add-order" href="{{ url_for('add_person') }}" style="margin-right: 1rem;">Add Customer</a>
+                    <a id="find-customer" href="{{ url_for('find_person') }}" style="margin-right: 1rem;">Find Customer</a>
+                </nav>
+            </div>
+            <h2>Current entries in the database:</h2>
+        </header>
+                <table>
+                    <tr>
+                        <th>id</th>
+                        <th>name</th>
+                        <th>B-dayr</th>
+                        <th>city</th>
+                        <th>email</th>
+                        <th>phone</th>
+                    </tr>
+                    {% block content %}
+                        {% for person in person_table %}
+                        <tr>
+                            <td>{{ person.id }}</td>
+                            <td>{{ person.name }}</td>
+                            <td>{{ person.birthday }}</td>
+                            <td>{{ person.city }}</td>
+                            <td>{{ person.email }}</td>
+                            <td>{{ person.phone }}</td>
+                        </tr>
+                        {% endfor %}
+                    {% endblock %}
+                </table>
+        </body>
+</html>
