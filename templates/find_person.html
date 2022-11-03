@@ -1,11 +1,20 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Database for all products saved</title>
+        <title>Find Customer in Database</title>
     </head>
     <body>
+        <header>
+            <div style="border-style: bold;">
+                <nav>
+                <a id="db-base-order" href="{{ url_for('base') }}" style="margin-right: 1rem;">Database</a>
+                <a id="add-order" href="{{ url_for('add_person') }}" style="margin-right: 1rem;">Add Customer</a>
+                <a id="find-customer" href="{{ url_for('find_person') }}" style="margin-right: 1rem;">Find Customer</a>
+                </nav>
+            </div>
+            <h2>Find Person in Database:</h2>
+        </header>
         <p>{{ heading }}</p>
-        <h2>Database Add Person</h2>
         {% block content %}
         <form method="POST" class="caption">
             {{ form.hidden_tag() }}
