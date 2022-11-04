@@ -66,7 +66,7 @@ class Product_Driver:
             return None
 
         # add title to Product.
-        self.name = title_cache.text.translate({ord("ß"):"ss"}).strip()
+        self.name = title_cache.text.translate({ord("ß"):"ss"}).translate({ord(";"): None}).strip()
         self.hash = hash(self.url)
 
     # get product rating from the page. format will be [#rating, [#5star, #4start, etc.]].
