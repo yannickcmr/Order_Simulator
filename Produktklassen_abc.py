@@ -165,9 +165,9 @@ if __name__ == "__main__":
 	#test_write_csv = [*phone, *tv, *computer, *headphone]
 	# test Write_Products_to_CSV
 	#Write_Products_to_CSV("Products.csv", test_write_csv)
-	test_read_products = Read_Product_CSV(test_file_products)
-	print(len(test_read_products))
-	for item in test_read_products:
-		print(vars(item), "\n")
+	#test_read_products = Read_Product_CSV(test_file_products)
+	#print(len(test_read_products))
+	#for item in test_read_products:
+	#	print(vars(item), "\n")
 
 	print(f"Done in {time.perf_counter() - start} sec.")
