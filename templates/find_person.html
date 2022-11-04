@@ -7,9 +7,10 @@
         <header>
             <div style="border-style: bold;">
                 <nav>
-                <a id="db-base-order" href="{{ url_for('base') }}" style="margin-right: 1rem;">Database</a>
-                <a id="add-order" href="{{ url_for('add_person') }}" style="margin-right: 1rem;">Add Customer</a>
-                <a id="find-customer" href="{{ url_for('find_person') }}" style="margin-right: 1rem;">Find Customer</a>
+                    <a id="db-base-person" href="{{ url_for('base') }}" style="margin-right: 1rem;">Database</a>
+                    <a id="add-person" href="{{ url_for('add_person') }}" style="margin-right: 1rem;">Add Person</a>
+                    <a id="add-person-csv" href="{{ url_for('add_person_csv') }}" style="margin-right: 1rem;">Add File</a>
+                    <a id="find-person" href="{{ url_for('find_person') }}" style="margin-right: 1rem;">Find Person</a>
                 </nav>
             </div>
             <h2>Find Person in Database:</h2>
