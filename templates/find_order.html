@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Find Order in Database</title>
+    </head>
+    <body>
+        <header>
+            <div style="border-style: bold;">
+                <nav>
+                <a id="db-base-order" href="{{ url_for('base') }}" style="margin-right: 1rem;">Database</a>
+                <a id="add-order" href="{{ url_for('add_order') }}" style="margin-right: 1rem;">Add Order</a>
+                <a id="add-order-csv" href="{{ url_for('add_order_csv') }}" style="margin-right: 1rem;">Add File</a>
+                <a id="find-order" href="{{ url_for('find_order') }}" style="margin-right: 1rem;">Find Order</a>
+                </nav>
+            </div>
+            <h2>Find Order in Database:</h2>
+        </header>
+        <p>{{ heading }}</p>
+        {% block content %}
+        <form method="POST" class="caption">
+            {{ form.hidden_tag() }}
+            {{ form.delete.label(class="form-label") }}
+            {{ form.delete(class="form-control") }}
+            {{ form.order_id.label(class="form-label") }}
+            {{ form.order_id(class="form-control")}}
+            {{ form.submit(class="form-control")}}
+            {% if form.order_id.errors %}
+            <ul class="errors">
+                {% for error in form.order_id.errors %}
+                    <li>{{ error }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        </form>
+    {% endblock %}
+</body>
+</html>
