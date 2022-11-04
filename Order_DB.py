@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileRequired
-from wtforms import StringField, SubmitField, FloatField, SelectMultipleField, widgets, FileField
+from wtforms import StringField, SubmitField, IntegerField, SelectMultipleField, widgets, FileField, SelectField, BooleanField
 from wtforms.validators import InputRequired, Length
 
 Path_Saving = "Test/"
@@ -31,12 +31,15 @@ class Order_DB(db.Model):
 def Find_Order_ID(id):
     return Order_DB.query.filter_by(id = id).first()
 
+def Rep_Order(order: Order_DB):
+    return f"ID:{order.id} ---- {order.customer} ---- {order.total}"
+
 """ App """
 
 products = Read_Product_CSV("Products.csv")
 
 def Convert_Products_to_Field(products_list: list) -> list:
-    return [(x.Hash(), x.Tags()) for x in products_list]
+    return [(x.hash, x.tags) for x in products_list]
 
 def Create_App():
     app = Flask(__name__)
@@ -61,7 +64,7 @@ def Create_App():
     # Form for adding an order manually.
     class AddOrderForm(FlaskForm):
         order_id = StringField("ID: ", validators=[InputRequired(), Length(min=1, max=10)])
-        order_customer = FloatField("Customer ID: ", validators=[InputRequired()])
+        order_customer = IntegerField("Customer ID: ", validators=[InputRequired()])
         order_products = MultiCheckboxField("Products: ", choices = Convert_Products_to_Field(products))
         submit = SubmitField("Add")
 
@@ -70,10 +73,16 @@ def Create_App():
         order_file = FileField("File: ", validators=[FileRequired()])
         submit = SubmitField("Add")
 
+    # Find an Order, either via ID or their name.
+    class FindOrderForm(FlaskForm):
+        delete = BooleanField("Deletion: ")
+        order_id = IntegerField("Enter the Order ID: ", validators=[InputRequired(), Length(min=1, max=100)])
+        submit = SubmitField("Go")
 
     """ Webpages """
 
     # Base database.
+    # -----> http://127.0.0.1:5000/base_order 
     @app.route("/base_order", methods=["POST", "GET"])
     def base():
         app.logger.info("-----> base")
@@ -96,6 +105,7 @@ def Create_App():
         return Order_DB(id = order_id, customer = order_customer, total = 0, items = len(products), bag = list(map(Map_Manually_Order, products)))
 
     # add an order manually and commit it to the database.
+    # -----> http://127.0.0.1:5000/base_order/add 
     @app.route("/base_order/add", methods=["POST", "GET"])
     def add_order():
         app.logger.info("-----> add")
@@ -132,7 +142,6 @@ def Create_App():
 
     # open local file and add all entries to the database.
     def Handle_Add_CSV(form):
-        app.logger.info(f"Input: {form}")
         path = os.path.join(Path_Saving, form.get("order_file"))
 
         with io.open(path, "r", encoding="utf-8") as order_csv:
@@ -154,19 +163,44 @@ def Create_App():
 
         app.logger.info(f"Added {len(order_lines)} Orders.")
 
-
+    # add a csv file from the order sim an add it directly to the database.
+    # -----> http://127.0.0.1:5000/base_order/add_csv 
     @app.route("/base_order/add_csv", methods=["POST", "GET"])
     def add_order_csv():
         app.logger.info("-----> add csv")
         add_order_csv_form = AddOrderCsvForm()
 
         if request.method == "POST":
-            app.logger.info("-----> add csv")
+            app.logger.info("-----> added csv")
             Handle_Add_CSV(request.form)
             app.logger.info("Added completed")
             return render_template("add_csv_order.html", form = add_order_csv_form, heading = "Added Order successfully.")
 
         return render_template("add_csv_order.html", form = add_order_csv_form, heading = "Add your saved order.")
+
+    """ Find and Delete an Order """
+    # find and delete an order via its id.
+    # -----> http://127.0.0.1:5000/base_order/add_csv 
+    @app.route("/base_order/find", methods=["POST", "GET"])
+    def find_order():
+        app.logger.info("-----> find order")
+        find_order_form = FindOrderForm()
+
+        if request.method == "POST":
+            app.logger.info("-----> search for an order")
+            order_search = Find_Order_ID(request.form.get("order_id"))
+            
+            if request.form.get("delete"):
+                db.session.delete(order_search)
+                db.session.commit()
+                app.logger.info("-----> deleted order")
+            
+                # return when deleting.
+                return render_template("find_order.html", form=find_order_form, heading="Deletion completed.")
+            # return when searching.
+            return render_template("find_order.html", form=find_order_form, heading=Rep_Order(order_search))
+        # return else
+        return render_template("find_order.html", form=find_order_form, heading="Find an order.")
 
     return app
 
@@ -174,7 +208,4 @@ if __name__ == "__main__":
     # Create and start the app.
     app = Create_App()
     app.run(debug=True)
-    app.logger.info("-----> http://127.0.0.1:5000/base_order ")
-    app.logger.info("-----> http://127.0.0.1:5000/base_order/add ")
-    app.logger.info("-----> http://127.0.0.1:5000/base_order/find ")
 
