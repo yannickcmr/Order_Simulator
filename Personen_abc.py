@@ -35,7 +35,7 @@ class Customer(Person):
 	"Someone, who is just a custumer to the company"
 	def __init__(self, name: str = None, birthday: str = None, residence: str = None, email: str = None, telephone: int = None):
 		super().__init__(name, birthday, residence, email, telephone)
-		self.customer_id = hash(name)
+		self.customer_id = hash(f"{email}{residence}{telephone}")
 		self.mean_volume: int = 0
 		self.mean_order: int = 0
 		self.mean_items: int = 0
@@ -105,21 +105,29 @@ def Randomize_Names(file: str, set_size: int) -> list:
 	first_names, last_names, cities, mails = Read_CSV(file)
 	return [Create_Customer(first_names, last_names, cities, mails) for i in range(0, set_size)]
 
+def Write_Customers(file: str, customers: list):
+	path = os.path.join(Path_Saving, file)
+
+	with io.open(path, "w+", encoding="utf-8") as customer_file:
+		for customer in customers:
+			customer_file.write(f"{customer.Person_ID()};{customer.name};{customer.birthday};{customer.residence};{customer.email};{customer.telephone}\n")
+
 
 if __name__ == "__main__":
 	start = time.perf_counter()
 	# enter your file name and number of test customers.
 	test_names = "Person.csv"
-	set_size = 150
+	set_size = 200
 
 	# testing Read_CSV
-	first_, last_, cities, mail = Read_CSV(test_names)
-	print(f"Testing Read_CSV:\nfirst names: {first_}\nlast names: {last_}\ncities: {cities}\nmail: {mail}\n")
+	#first_, last_, cities, mail = Read_CSV(test_names)
+	#print(f"Testing Read_CSV:\nfirst names: {first_}\nlast names: {last_}\ncities: {cities}\nmail: {mail}\n")
 	
 	# Testing Randomize_Names and Create_Customer.
 	random_names = Randomize_Names(test_names, set_size)
+	Write_Customers("Customers.csv", random_names)
 	print(f"Testing Randomize_Names:\n")
-	for customer in random_names:
-		print(f"{customer.birthday}\t\t{customer.telephone}\t\t{customer.name}\t\t{customer.email}\t\t{customer.customer_id} ")
+	#for customer in random_names:
+		#print(f"{customer.birthday}\t\t{customer.telephone}\t\t{customer.name}\t\t{customer.email}\t\t{customer.customer_id} ")
 	
 	print(f"Done generating {set_size} in {time.perf_counter() - start} sec.")
